@@ -1,3 +1,8 @@
+/*
+ * En esta clase se crea la estructura del metadata 
+ * para la respuesta de la aplicación
+ */
+
 package com.company.inventory.response;
 
 import java.util.ArrayList;
