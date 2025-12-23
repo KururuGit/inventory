@@ -64,7 +64,6 @@ public class CategoryServiceImpl implements ICategoryService {
 				list.add(category.get());
 				response.getCategoryResponse().setCategory(list);
 				
-				response.getCategoryResponse().setCategory(list);
 				response.setMetadata("Respuesta Ok!", "200", "Categoría encontrada");
 			} else {
 				response.setMetadata("Respuesta nok!", "-1", "Categoría no encotrada");
