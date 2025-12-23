@@ -147,6 +147,58 @@ public class ProductServiceImpl implements IProductService {
 		
 		return new ResponseEntity<ProductResponseRest>(response, HttpStatus.OK);
 	}
+
+
+	@Override
+	@Transactional
+	public ResponseEntity<ProductResponseRest> deleteById(Long id) {
+		
+		ProductResponseRest response = new ProductResponseRest();
+		
+
+		try {
+			productDao.deleteById(id);
+			
+			response.setMetadata("Respuesta Ok!", "200", "Producto eliminado");
+			
+		} catch (Exception e) {
+			response.setMetadata("Respuesta nok!", "-1", "Error al eliminar producto");
+			e.getStackTrace();
+			return new ResponseEntity<ProductResponseRest>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+			
+		}
+		
+		return new ResponseEntity<ProductResponseRest>(response, HttpStatus.OK);
+	}
+
+
+	@Override
+	public ResponseEntity<ProductResponseRest> searchProducts() {
+		
+		ProductResponseRest response = new ProductResponseRest();
+
+		try {
+
+			// Devuelve todos los registros encontrados en la tabla.
+			List<Product> product = (List<Product>) productDao.findAll();
+
+			// envía los resultados a la clase CaregoryResponse
+			response.getProduct().setProducts(product);
+			
+			// Escribe el resultado de la transacción en el metadata de la respuesta
+			response.setMetadata("Respuesta Ok!", "200", "Respuesta exitosa");
+
+		} catch (Exception e) {
+
+			response.setMetadata("Respuesta nok!", "-1", "Error al consultar");
+			e.getStackTrace();
+			return new ResponseEntity<ProductResponseRest>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+
+		}
+
+		// Retorna la respuesta 
+		return new ResponseEntity<ProductResponseRest>(response, HttpStatus.OK);
+	}
 	
 
 }

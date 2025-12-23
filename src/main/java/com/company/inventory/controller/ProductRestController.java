@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.company.inventory.model.Product;
+import com.company.inventory.response.CategoryResponseRest;
 import com.company.inventory.response.ProductResponseRest;
 import com.company.inventory.services.IProductService;
 import com.company.inventory.util.Util;
@@ -59,6 +61,12 @@ public class ProductRestController {
 		return response;
 	}
 	
+	/**
+	 * 
+	 * @param id
+	 * @return
+	 */
+	
 	@GetMapping("/products/{id}")
 	public ResponseEntity<ProductResponseRest> searchById(@PathVariable Long id) {
 		ResponseEntity<ProductResponseRest> response = productService.searchById(id);
@@ -66,10 +74,33 @@ public class ProductRestController {
 		return response;
 	}
 	
+	/**
+	 * 
+	 * @param name
+	 * @return
+	 */
 	@GetMapping("/products/filter/{name}")
 	public ResponseEntity<ProductResponseRest> searchByName(@PathVariable String name) {
 		ResponseEntity<ProductResponseRest> response = productService.searchByName(name);
 		
+		return response;
+	}
+	
+	/**
+	 * 
+	 * @param id
+	 * @return
+	 */
+	@DeleteMapping("/products/{id}")
+	public ResponseEntity<ProductResponseRest> deleteById(@PathVariable Long id) {
+		ResponseEntity<ProductResponseRest> response = productService.deleteById(id);
+		
+		return response;
+	}
+	
+	@GetMapping("/products")
+	public ResponseEntity<ProductResponseRest> searchProducts() {
+		ResponseEntity<ProductResponseRest> response = productService.searchProducts();
 		return response;
 	}
 }
