@@ -1,19 +1,15 @@
 package com.company.inventory.response;
 
 import java.util.List;
-
 import com.company.inventory.model.Product;
-
 import lombok.Data;
 
 @Data
 public class ProductResponse {
 	
-	List<Product> products;
+	private List<Product> products;
 
 	public void setProducts(List<Product> list) {
-		
-		
+		this.products = list;
 	}
-	
 }

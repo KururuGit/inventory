@@ -74,6 +74,7 @@ public class ProductServiceImpl implements IProductService {
 	@Override
 	@Transactional(readOnly = true)
 	public ResponseEntity<ProductResponseRest> searchById(Long id) {
+		
 		ProductResponseRest response = new ProductResponseRest();
 		List<Product> list = new ArrayList<>();
 
@@ -99,6 +100,46 @@ public class ProductServiceImpl implements IProductService {
 		} catch (Exception e) {
 			
 			response.setMetadata("Respuesta nok!", "-1", "Error al consultar por id");
+			e.getStackTrace();
+			return new ResponseEntity<ProductResponseRest>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+			
+		}
+		
+		return new ResponseEntity<ProductResponseRest>(response, HttpStatus.OK);
+	}
+
+
+	@Override
+	@Transactional(readOnly = true)
+	public ResponseEntity<ProductResponseRest> searchByName(String name) {
+		ProductResponseRest response = new ProductResponseRest();
+		List<Product> list = new ArrayList<>();
+		List<Product> listAux = new ArrayList<>();
+
+		try {
+			
+			listAux = productDao.findByNameLike(name);
+			
+			if (listAux.size() > 0) {
+				
+				listAux.stream().forEach( (p) -> {
+					byte[] imageDecompressed = Util.decompressZLib(p.getPicture()); //descomprime el archivo
+					p.setPicture(imageDecompressed); // reemplaza la imagen comprimida por la descomprimida en l objeto product
+					list.add(p);
+				});
+				
+				response.getProduct().setProducts(list);
+				response.setMetadata("Respuesta Ok!", "200", "Productos encontrados");
+			} else {
+				response.setMetadata("Respuesta nok!", "-1", "Productos no encotrados");
+				return new ResponseEntity<ProductResponseRest>(response, HttpStatus.NOT_FOUND);
+			}
+			
+			
+			
+		} catch (Exception e) {
+			
+			response.setMetadata("Respuesta nok!", "-1", "Error al consultar producto por nombre");
 			e.getStackTrace();
 			return new ResponseEntity<ProductResponseRest>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 			
