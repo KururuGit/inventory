@@ -16,7 +16,7 @@ public class Category implements Serializable {
 	/**
 	 * 
 	 */
-	private static final long serialVersioUID = -4310027227752446841L; // Ayuda a generar un ID
+	private static final long serialVersionUID = 1L; // Ayuda a generar un ID
 	
 	@Id // indica que esta variable va a ser el ID del registro
 	@GeneratedValue(strategy = GenerationType.IDENTITY) // Indica que el ID se va a generar automáticamente.
