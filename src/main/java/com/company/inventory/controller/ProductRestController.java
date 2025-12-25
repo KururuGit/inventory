@@ -8,11 +8,14 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.company.inventory.model.Category;
 import com.company.inventory.model.Product;
 import com.company.inventory.response.CategoryResponseRest;
 import com.company.inventory.response.ProductResponseRest;
@@ -101,6 +104,26 @@ public class ProductRestController {
 	@GetMapping("/products")
 	public ResponseEntity<ProductResponseRest> searchProducts() {
 		ResponseEntity<ProductResponseRest> response = productService.searchProducts();
+		return response;
+	}
+	
+	@PutMapping("/products/{id}")
+	public ResponseEntity<ProductResponseRest> update(
+			@RequestParam("picture") MultipartFile picture,
+			@RequestParam("name") String name,
+			@RequestParam("price") float price,
+			@RequestParam("quantity") int quantity,
+			@RequestParam("categoryId") Long categoryId,
+			@PathVariable Long id) throws IOException {
+		
+		Product product = new Product();
+		product.setName(name);
+		product.setPrice(price);
+		product.setQuantity(quantity);
+		product.setPicture(Util.compressZLib(picture.getBytes()));
+		
+		
+		ResponseEntity<ProductResponseRest> response = productService.update(product, categoryId, id);
 		return response;
 	}
 }

@@ -13,6 +13,7 @@ import com.company.inventory.dao.ICategoryDao;
 import com.company.inventory.dao.IProductDao;
 import com.company.inventory.model.Category;
 import com.company.inventory.model.Product;
+import com.company.inventory.response.CategoryResponseRest;
 import com.company.inventory.response.ProductResponseRest;
 import com.company.inventory.util.Util;
 
@@ -173,20 +174,32 @@ public class ProductServiceImpl implements IProductService {
 
 
 	@Override
+	@Transactional(readOnly = true)
 	public ResponseEntity<ProductResponseRest> searchProducts() {
 		
 		ProductResponseRest response = new ProductResponseRest();
+		
+		List<Product> list = new ArrayList<>();
+		List<Product> listAux = new ArrayList<>();
 
 		try {
 
-			// Devuelve todos los registros encontrados en la tabla.
-			List<Product> product = (List<Product>) productDao.findAll();
-
-			// envía los resultados a la clase CaregoryResponse
-			response.getProduct().setProducts(product);
+			listAux = (List<Product>) productDao.findAll();
 			
-			// Escribe el resultado de la transacción en el metadata de la respuesta
-			response.setMetadata("Respuesta Ok!", "200", "Respuesta exitosa");
+			if (listAux.size() > 0) {
+				
+				listAux.stream().forEach( (p) -> {
+					byte[] imageDecompressed = Util.decompressZLib(p.getPicture()); //descomprime el archivo
+					p.setPicture(imageDecompressed); // reemplaza la imagen comprimida por la descomprimida en l objeto product
+					list.add(p);
+				});
+				
+				response.getProduct().setProducts(list);
+				response.setMetadata("Respuesta Ok!", "200", "Productos encontrados");
+			} else {
+				response.setMetadata("Respuesta nok!", "-1", "Productos no encotrados");
+				return new ResponseEntity<ProductResponseRest>(response, HttpStatus.NOT_FOUND);
+			}
 
 		} catch (Exception e) {
 
@@ -197,6 +210,58 @@ public class ProductServiceImpl implements IProductService {
 		}
 
 		// Retorna la respuesta 
+		return new ResponseEntity<ProductResponseRest>(response, HttpStatus.OK);
+	}
+
+
+	@Override
+	@Transactional
+	public ResponseEntity<ProductResponseRest> update(Product product, Long categoryId, Long id) {
+		ProductResponseRest response = new ProductResponseRest();
+		List<Product> list = new ArrayList<>();
+
+		try {
+			
+			Optional<Product> productSearch = productDao.findById(id);
+			Optional<Category> category = categoryDao.findById(categoryId);
+			
+			if (category.isPresent()) {
+				product.setCategory(category.get());
+			} else {
+				response.setMetadata("respuesta nok", "-1", "Categoria no encontrada");
+				return new ResponseEntity<ProductResponseRest>(response,HttpStatus.NOT_FOUND);
+			}
+			
+			if (productSearch.isPresent()) {
+				productSearch.get().setName(product.getName());
+				productSearch.get().setPrice(product.getPrice());
+				productSearch.get().setQuantity(product.getQuantity());
+				productSearch.get().setCategory(product.getCategory());
+				productSearch.get().setPicture(product.getPicture());
+				
+				Product productToUpdate = productDao.save(productSearch.get());
+				
+				if (productToUpdate != null) {
+					list.add(productToUpdate);
+					response.getProduct().setProducts(list);
+					response.setMetadata("Respuesta Ok!", "200", "Categoría actualizada");
+				} else {
+					response.setMetadata("Respuesta nok", "-1", "Categoría no actulizada.");
+					return new ResponseEntity<ProductResponseRest>(response, HttpStatus.NOT_FOUND);
+				}
+			} else {
+				response.setMetadata("Respuesta nok", "-1", "Categoría no actulizada.");
+				return new ResponseEntity<ProductResponseRest>(response, HttpStatus.BAD_REQUEST);
+			}
+			
+		}catch (Exception e) {
+			
+			response.setMetadata("Respuesta nok!", "-1", "Error al actualizar categoría");
+			e.getStackTrace();
+			return new ResponseEntity<ProductResponseRest>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+			
+		}
+		
 		return new ResponseEntity<ProductResponseRest>(response, HttpStatus.OK);
 	}
 	
